@@ -28,13 +28,13 @@ export function evaluateExpression(expr: string): string {
       i--;
       //push it into stack
       numbers.push(num);
-    } else if (c == "(") {
+    } else if (c === "(") {
       //push it to operators stack
       operations.push(c);
     }
     //Closed brace, evaluate the entire brace
-    else if (c == ")") {
-      while (operations[operations.length - 1] != "(") {
+    else if (c === ")") {
+      while (operations[operations.length - 1] !== "(") {
         let output = performOperation(numbers, operations);
         //push it back to stack
         numbers.push(output);
