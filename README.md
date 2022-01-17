@@ -1,5 +1,4 @@
 # Simple calculator app
-<img src="https://github.com/ftodoric/basic-calc/blob/main/public/images/calcBlack.svg" width="60px"/>
 
 🔗 [digi.vercel.app](https://digi.vercel.app)
 
