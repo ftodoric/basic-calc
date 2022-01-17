@@ -2,7 +2,21 @@
 
 🔗 [digi.vercel.app](https://digi.vercel.app)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) using [Yarn](https://yarnpkg.com/) pm.
+### Description
+
+App supports following operations:
+- binary fundamentals: addition, subtraction, multiplication, division
+- unary: square, square root, inverse, sine, cosine, tangent
+
+Single memory storage available, too.
+
+## Technologies
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and TypeScript template using [Yarn](https://yarnpkg.com/) pm.
+
+CSS design with [Styled Components](https://styled-components.com/).
+
+Tested with [Jest](https://jestjs.io/).
 
 ## Available Scripts
 
