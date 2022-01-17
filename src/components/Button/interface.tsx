@@ -1,8 +1,8 @@
 import { ReactElement } from "react";
 
 export interface ButtonProps {
-  content?: string | ReactElement;
+  content: string | ReactElement;
   className?: string;
-  onclick?: () => void;
+  onClick?: () => void;
   disabled?: boolean;
 }

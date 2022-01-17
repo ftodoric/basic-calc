@@ -1,13 +1,15 @@
 import { ButtonProps } from "./interface";
 
+import * as S from "./styles";
+
 export const Button = (props: ButtonProps) => {
   return (
-    <button
+    <S.Button
       className={props.className}
-      onClick={props.onclick}
+      onClick={props.onClick}
       disabled={props.disabled}
     >
       {props.content}
-    </button>
+    </S.Button>
   );
 };
