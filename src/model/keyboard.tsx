@@ -44,13 +44,6 @@ export enum Key {
   NINE = "9",
 }
 
-/* export enum OP {
-  ADD = "+",
-  SUB = "\u2212",
-  MUL = "\u00d7",
-  DIV = "\u00f7",
-} */
-
 export const layout = [
   [
     { key: Key.AC, content: "AC" },

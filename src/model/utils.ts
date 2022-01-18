@@ -9,39 +9,16 @@ export function isDisplayFull(display: string): boolean {
 }
 
 // Operation characteristic
-const unaryOP = [Key.SQ, Key.SQRT, Key.INV, Key.SIN, Key.COS, Key.TAN];
-const binaryOP = [Key.ADD, Key.SUB, Key.MUL, Key.DIV];
-type UnaryDisplaySet = {
-  op: string;
-  pre: string;
-  post: string;
-};
-const unaryDisplaySets = {
-  sets: [
-    { op: Key.SQ, pre: "(", post: ")\u00b2" },
-    { op: Key.SQRT, pre: "\u221a(", post: ")" },
-    { op: Key.INV, pre: "1/(", post: ")" },
-    { op: Key.SIN, pre: "sin(", post: ")" },
-    { op: Key.COS, pre: "cos(", post: ")" },
-    { op: Key.TAN, pre: "tan(", post: ")" },
-  ],
-  find: function (op: string) {
-    const target = this.sets.find((item) => {
-      return item.op === op;
-    });
-    return target !== undefined ? target : { op: "error", pre: "", post: "" };
-  },
-};
-const binaryDisplaySet = [
-  { op: Key.ADD, str: "+" },
-  { op: Key.SUB, str: "\u2212" },
-  { op: Key.MUL, str: "\u00d7" },
-  { op: Key.DIV, str: "\u00f7" },
+const unaryOP = [
+  Key.SQ,
+  Key.SQRT,
+  Key.INV,
+  Key.SIN,
+  Key.COS,
+  Key.TAN,
+  Key.SIGN,
 ];
-type ExprItemContext = {
-  unaryBefore: boolean;
-  binaryBeforeMinus: boolean;
-};
+const binaryOP = [Key.ADD, Key.SUB, Key.MUL, Key.DIV];
 
 export function isOP(op: string) {
   return {
@@ -52,68 +29,6 @@ export function isOP(op: string) {
       return item === op;
     }),
   };
-}
-
-// Parse expression and get string to display
-export function exprToString(expr: string[]): string {
-  let unaryOP: UnaryDisplaySet | undefined;
-  let displayString: string[] = [];
-  let unaryOPStack: UnaryDisplaySet[] = [];
-
-  // Initial context for the first item in expression list
-  let ctx: ExprItemContext = {
-    unaryBefore: false,
-    binaryBeforeMinus: false,
-  };
-  let formattedItem = { pre: "", value: "", post: "" };
-  expr.forEach((item, i) => {
-    formattedItem = {
-      pre: "",
-      value: isNumber(item) ? item.replace("-", "\u2212") : "",
-      post: "",
-    };
-    // 1. Unary was before and binary was before a minus
-    // We can ignore binary op, because unary already encloses current value
-    if (ctx.unaryBefore) {
-      if (!isOP(item).unary) {
-        for (let opObj of unaryOPStack) {
-          formattedItem.pre = opObj!.pre + formattedItem.pre;
-          formattedItem.post += opObj!.post;
-          ctx.unaryBefore = false;
-        }
-        unaryOPStack = [];
-      }
-    }
-    // 2. Only binary was before and current value is negative
-    else if (ctx.binaryBeforeMinus) {
-      formattedItem.pre = "(";
-      formattedItem.post = ")";
-      ctx.binaryBeforeMinus = false;
-    }
-    // 3. No conditions from the last item, proceed normally
-    // If current item is an unary operator
-    if (isOP(item).unary) {
-      unaryOP = unaryDisplaySets.find(item);
-      unaryOPStack.push(unaryOP!);
-      ctx.unaryBefore = true;
-    }
-    // If current item is a binary operator
-    else if (isOP(item).binary) {
-      displayString.push(
-        binaryDisplaySet.find((opObj) => {
-          return opObj.op === item;
-        })!.str
-      );
-      if (isNumber(expr[i + 1]) && Number(expr[i + 1]) < 0)
-        ctx.binaryBeforeMinus = true;
-    }
-
-    displayString.push(
-      formattedItem.pre + formattedItem.value + formattedItem.post
-    );
-  });
-
-  return displayString.join("");
 }
 
 function applyUnaryOP(value: number, op: string) {
@@ -130,6 +45,8 @@ function applyUnaryOP(value: number, op: string) {
       return Math.cos(value);
     case Key.TAN:
       return Math.tan(value);
+    case Key.SIGN:
+      return -value;
     default:
       return NaN;
   }
@@ -256,4 +173,9 @@ export function evaluateExpression(expr: string[]): string {
   });
 
   return formatByDisplayConstraints(solveInfix(exprModified));
+}
+
+export function evaluateLastUnaries(expr: string[]) {
+  let firstOPIndex = getIndexOfFirstUnaryOPFromRight(expr);
+  return evaluateExpression([...expr].splice(firstOPIndex));
 }

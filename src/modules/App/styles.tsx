@@ -28,6 +28,7 @@ export const Display = styled.div`
   background: #000;
   opacity: 0.5;
   color: white;
+  user-select: none;
 
   .expression {
     font-size: 18px;
