@@ -6,6 +6,7 @@ import {
   isNumber,
   evaluateExpression,
   evaluateLastUnaries,
+  removeLastUnaries,
 } from "./utils";
 
 // Interface
@@ -74,15 +75,11 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
   }
   // Binary operator
   else if (isOP(keyPress).binary) {
-    if (expr[expr.length - 1] !== Key.EQ) expr.push(keyPress);
-    else {
-      expr = [display];
-      expr.push(keyPress);
-    }
+    return addBinaryOperator(state, keyPress);
   }
   // Floating point
   else if (keyPress === Key.FP) {
-    expr[expr.length - 1] += ".";
+    return insertFloatingPoint(state, keyPress);
   }
   // Evaluate expression
   else if (keyPress === Key.EQ) {
@@ -94,6 +91,8 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
 };
 
 // CALCULATOR FUNCTIONS
+
+// Expression is stored as a list and each list item is referred as "item" in the rest of the program.
 
 /**
  * Defines conditions for key press to be allowed.
@@ -132,7 +131,15 @@ function allClear(): CalcState {
  * @returns
  */
 function clear(state: CalcState): CalcState {
-  return { expr: state.expr, display: initState().display };
+  const expr = state.expr;
+  // If last item not a number do nothing
+  if (!isNumber(expr[expr.length - 1])) return { ...state };
+  if (expr.length !== 1) removeLastUnaries(expr);
+  else expr[0] = "0";
+  return {
+    expr: expr,
+    display: initState().display,
+  };
 }
 
 /**
@@ -141,8 +148,8 @@ function clear(state: CalcState): CalcState {
  * @param keyPress
  * @returns
  */
-function applyUnaryOperator(state: CalcState, keyPress: string) {
-  const expr = state.expr;
+function applyUnaryOperator(state: CalcState, keyPress: string): CalcState {
+  let expr = state.expr;
   let display = state.display;
   const lastTerm = expr[expr.length - 1];
 
@@ -150,6 +157,11 @@ function applyUnaryOperator(state: CalcState, keyPress: string) {
   if (isNumber(lastTerm)) {
     expr.push(lastTerm);
     expr[expr.length - 2] = keyPress;
+  }
+  // If expression was evaluated previously
+  else if (expr[expr.length - 1] === Key.EQ) {
+    // Push current unary operator and then the result of the evaluation
+    expr = [keyPress, display];
   }
   // Else apply operator on current display value
   else {
@@ -160,6 +172,32 @@ function applyUnaryOperator(state: CalcState, keyPress: string) {
   // After every unary operator display evaluation of last number with applied unaries on him
   display = evaluateLastUnaries(expr);
 
+  return { expr: expr, display: display };
+}
+
+/**
+ * This function adds binary operator and expects secod operand after.
+ * @param state
+ * @param keyPress
+ * @returns
+ */
+function addBinaryOperator(state: CalcState, keyPress: string): CalcState {
+  let expr = state.expr;
+  const display = state.display;
+
+  // If expression was not evaluated previously, push new item
+  if (expr[expr.length - 1] !== Key.EQ) {
+    // If previous item is another binary operator, replace it with this one
+    if (isOP(expr[expr.length - 1]).binary) expr[expr.length - 1] = keyPress;
+    // Else push new operator
+    else expr.push(keyPress);
+    console.log(expr);
+  }
+  // If expression was evaluated previously, push the display value as number, then push this binary operator
+  else {
+    expr = [display];
+    expr.push(keyPress);
+  }
   return { expr: expr, display: display };
 }
 
@@ -192,6 +230,12 @@ function inputDigit(state: CalcState, keyPress: string) {
   display = expr[expr.length - 1];
 
   return { expr: expr, display: display };
+}
+
+function insertFloatingPoint(state: CalcState, keyPress: string): CalcState {
+  let expr = state.expr;
+  expr[expr.length - 1] += ".";
+  return { expr: expr, display: state.display };
 }
 
 type ExprItemContext = {
@@ -242,9 +286,14 @@ export function exprToString(expr: string[]): string {
   };
   let formattedItem = { pre: "", value: "", post: "" };
   expr.forEach((item, i) => {
+    const formattedValue = isNumber(item)
+      ? item.replace("-", "\u2212")
+      : item === Key.EQ
+      ? "="
+      : "";
     formattedItem = {
       pre: "",
-      value: isNumber(item) ? item.replace("-", "\u2212") : "",
+      value: formattedValue,
       post: "",
     };
     // 1. Unary was before and binary was before a minus

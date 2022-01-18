@@ -24,7 +24,7 @@ export const Display = styled.div`
   align-items: flex-end;
   font-size: 42px;
   height: 80px;
-  padding-right: 10px;
+  padding: 0 10px;
   background: #000;
   opacity: 0.5;
   color: white;
@@ -34,6 +34,11 @@ export const Display = styled.div`
     font-size: 18px;
     margin: 5px 0 -5px;
     color: #b5b5b5;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   @media screen and (max-width: 420px) {

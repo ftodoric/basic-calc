@@ -179,3 +179,8 @@ export function evaluateLastUnaries(expr: string[]) {
   let firstOPIndex = getIndexOfFirstUnaryOPFromRight(expr);
   return evaluateExpression([...expr].splice(firstOPIndex));
 }
+
+export function removeLastUnaries(expr: string[]) {
+  let firstOPIndex = getIndexOfFirstUnaryOPFromRight(expr);
+  expr.splice(firstOPIndex);
+}
