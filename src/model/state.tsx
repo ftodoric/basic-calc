@@ -1,5 +1,11 @@
 import { Key } from "./keyboard";
-import { isDisplayFull, isOP, isNumber } from "./utils";
+import {
+  isDisplayFull,
+  isOP,
+  isNumber,
+  evaluateExpression,
+  getIndexOfFirstUnaryOPFromRight,
+} from "./utils";
 
 interface CalcState {
   display: string;
@@ -24,10 +30,16 @@ export const getNextState = (state: CalcState, keyPress: string): CalcState => {
   }
 
   // Is display full
-  if (isDisplayFull(display)) return { ...state };
+  if (
+    isNumber(keyPress) &&
+    isNumber(expr[expr.length - 1]) &&
+    isDisplayFull(display)
+  )
+    return { ...state };
 
   // Digit
   if (isNumber(keyPress)) {
+    if (expr[expr.length - 1] === Key.EQ) expr = ["0"];
     const lastItem = expr[expr.length - 1];
     if (isNumber(lastItem)) {
       expr[expr.length - 1] === "0"
@@ -38,23 +50,34 @@ export const getNextState = (state: CalcState, keyPress: string): CalcState => {
     }
     display = expr[expr.length - 1];
   }
-
   // Unary operations
-  if (isOP(keyPress).unary && !isOP(expr[expr.length - 1]).binary) {
+  else if (
+    isOP(keyPress).unary &&
+    !isOP(expr[expr.length - 1]).binary &&
+    expr[expr.length - 1] !== Key.EQ
+  ) {
     expr.push(expr[expr.length - 1]);
     expr[expr.length - 2] = keyPress;
+    let firstOPIndex = getIndexOfFirstUnaryOPFromRight(expr);
+    display = evaluateExpression([...expr].splice(firstOPIndex));
   }
-
   // Binary operations
-  if (isOP(keyPress).binary) {
+  else if (isOP(keyPress).binary && expr[expr.length - 1] !== Key.EQ) {
     expr.push(keyPress);
   }
-
-  if (keyPress === Key.FP) {
+  // Floating point
+  else if (keyPress === Key.FP) {
     expr[expr.length - 1] += ".";
   }
-
-  if (keyPress === Key.SIGN) {
+  // Negativity
+  else if (keyPress === Key.SIGN) {
+    expr[expr.length - 1] = (Number(expr[expr.length - 1]) * -1).toString();
+    display = (Number(display) * -1).toString();
+  }
+  // Evaluate expression
+  else if (keyPress === Key.EQ) {
+    expr.push(keyPress);
+    display = evaluateExpression(expr).toString();
   }
 
   return { expr: expr, display: display };
