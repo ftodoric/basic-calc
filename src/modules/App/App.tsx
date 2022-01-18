@@ -1,17 +1,27 @@
 import React from "react";
-import { Buttons } from "../../modules/Buttons";
+import { Keyboard } from "../Keyboard";
+import { getNextState, initState } from "../../model/state";
 
-import * as Calc from "./styles";
+import * as Styled from "./styles";
+import { exprToString } from "../../model/utils";
 
 export function App() {
-  const [display] = React.useState("-1234.123412");
+  const [state, setState] = React.useState(initState);
+
+  const press = (keyPress: string) => {
+    const newState = getNextState(state, keyPress);
+    setState(newState);
+  };
 
   return (
-    <Calc.BG>
-      <Calc.UI>
-        <Calc.Display>{display}</Calc.Display>
-        <Buttons />
-      </Calc.UI>
-    </Calc.BG>
+    <Styled.BG>
+      <Styled.UI>
+        <Styled.Display>
+          <div className="expression">{exprToString(state.expr)}</div>
+          <div className="display">{state.display}</div>
+        </Styled.Display>
+        <Keyboard onPress={press} />
+      </Styled.UI>
+    </Styled.BG>
   );
 }

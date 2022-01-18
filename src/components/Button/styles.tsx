@@ -8,6 +8,9 @@ export const Button = styled.button`
   color: #06354f;
   user-select: none;
 
+  width: 100px;
+  height: 90px;
+
   :focus-visible {
     outline: none;
   }
@@ -15,5 +18,10 @@ export const Button = styled.button`
   :hover {
     background-color: #abd0dc;
     cursor: pointer;
+  }
+
+  @media screen and (max-width: 450px) {
+    width: 25%;
+    height: 80px;
   }
 `;

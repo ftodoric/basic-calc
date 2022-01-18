@@ -20,16 +20,26 @@ export const UI = styled.div`
 
 export const Display = styled.div`
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  font-size: 46px;
+  flex-flow: column;
+  align-items: flex-end;
+  font-size: 42px;
   height: 80px;
   padding-right: 10px;
   background: #000;
   opacity: 0.5;
   color: white;
 
+  .expression {
+    font-size: 18px;
+    margin: 5px 0 -5px;
+    color: #b5b5b5;
+  }
+
   @media screen and (max-width: 420px) {
     font-size: 11vw;
+
+    .expression {
+      font-size: 4vw;
+    }
   }
 `;
