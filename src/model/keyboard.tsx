@@ -1,4 +1,4 @@
-import { BackspaceIcon } from "../components/Icons/BackspaceIcon";
+import { BackspaceIcon } from "../components/Icons/BackSpaceIcon";
 
 export enum Key {
   // Display and memory functions
@@ -55,7 +55,10 @@ export const layout = [
     { key: Key.SQ, content: "x\u00b2" },
     { key: Key.SQRT, content: "\u221ax" },
     { key: Key.INV, content: "1/x" },
-    { key: Key.BCKSP, content: <BackspaceIcon width="22" fill="#06354f" /> },
+    {
+      key: Key.BCKSP,
+      content: <BackspaceIcon width="22" height="22" fill="#06354f" />,
+    },
   ],
   [
     { key: Key.SIN, content: "sin" },
