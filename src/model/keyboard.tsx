@@ -25,8 +25,8 @@ export enum Key {
   // Evaluation operator
   EQ = "Equals",
 
-  // Sign modifier
-  SIGN = "Sign",
+  // Negate operator
+  NEG = "Negation",
 
   // Floating point
   FP = "Floating Point",
@@ -85,7 +85,7 @@ export const layout = [
     { key: Key.DIV, content: "\u00f7" },
   ],
   [
-    { key: Key.SIGN, content: "\u00b1" },
+    { key: Key.NEG, content: "\u00b1" },
     { key: Key.ZERO, content: "0" },
     { key: Key.FP, content: "." },
     { key: Key.EQ, content: "=" },

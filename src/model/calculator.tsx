@@ -21,6 +21,7 @@ interface CalcState {
 }
 
 // Calculator object
+// Return a deep copy to make it reusable
 const initState = (): CalcState => {
   return JSON.parse(JSON.stringify({ expr: ["0"], display: "0" }));
 };
@@ -41,33 +42,36 @@ export const useCalculator = (): Calculator => {
 
 /**
  * This method determines next internal state of the calculator based on it's current state and key input.
- * @param state
- * @param keyPress
- * @returns New calculator state.
+ *
+ * @param {CalcState} state
+ * @param {string} keyPress
+ * @returns {CalcState} New calculator state.
  */
 const getNextState = (state: CalcState, keyPress: string): CalcState => {
-  // Shorten props
-  let expr = state.expr;
-  let display = state.display;
-
-  // All function calls return new state: {expr: "epression", display: "displayString"}
-
   // Clear All
   if (keyPress === Key.AC) {
     return allClear();
   }
 
+  // KEY PRESS GUARD - Defined constraints
+  if (keyPressDenied(state, keyPress)) return { ...state };
+
+  // Other keys
   // Clear
   if (keyPress === Key.C) {
     return clear(state);
   }
-
-  // KEY PRESS GUARD - Defined constraints
-  if (keyPressDenied(state, keyPress)) return { ...state };
-
-  // Digit input
-  if (isNumber(keyPress)) {
-    return inputDigit(state, keyPress);
+  // Memory store
+  else if (keyPress === Key.MS) {
+    return { ...state };
+  }
+  // Memory retrieve
+  else if (keyPress === Key.MR) {
+    return { ...state };
+  }
+  // Backspace
+  else if (keyPress === Key.BCKSP) {
+    return { ...state };
   }
   // Unary operator
   else if (isOP(keyPress).unary) {
@@ -77,44 +81,53 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
   else if (isOP(keyPress).binary) {
     return addBinaryOperator(state, keyPress);
   }
+  // Digit input
+  else if (isNumber(keyPress)) {
+    return inputDigit(state, keyPress);
+  }
+  // Negate operator
+  else if (keyPress === Key.NEG) {
+    return { ...state };
+  }
   // Floating point
   else if (keyPress === Key.FP) {
     return insertFloatingPoint(state, keyPress);
   }
   // Evaluate expression
-  else if (keyPress === Key.EQ) {
-    expr.push(keyPress);
-    display = evaluateExpression(expr).toString();
+  else {
+    return evaluate(state, keyPress);
   }
-
-  return { expr: expr, display: display };
 };
 
 // CALCULATOR FUNCTIONS
 
 // Expression is stored as a list and each list item is referred as "item" in the rest of the program.
+// All function calls return new state: {expr: "epression", display: "displayString"}
 
 /**
  * Defines conditions for key press to be allowed.
- * Only keys "AC" and "C" are allowed in any given situation.
+ * Only "AC" key is allowed in any given situation.
  *
  * Conditions:
  *
  * 1. No Display Error
  * 2. Display must not be full if digit is pressed and last item is number
+ * 3. "C" pressed while 0 on display and operator as last item in expression
  *
  * @param state
  * @param keyPress
  * @returns
  */
 function keyPressDenied(state: CalcState, keyPress: string) {
+  const lastItem = state.expr[state.expr.length - 1];
+
   const cond1 = state.display === "Display Error";
   const cond2 =
-    isNumber(keyPress) &&
-    isNumber(state.expr[state.expr.length - 1]) &&
-    isDisplayFull(state.display);
+    isNumber(keyPress) && isNumber(lastItem) && isDisplayFull(state.display);
+  const cond3 =
+    keyPress === Key.C && state.display === "0" && isOP(lastItem).binary;
 
-  return cond1 || cond2;
+  return cond1 || cond2 || cond3;
 }
 
 /**
@@ -232,12 +245,32 @@ function inputDigit(state: CalcState, keyPress: string) {
   return { expr: expr, display: display };
 }
 
+/**
+ * Inserts floating point.
+ * @param state
+ * @param keyPress
+ * @returns
+ */
 function insertFloatingPoint(state: CalcState, keyPress: string): CalcState {
   let expr = state.expr;
   expr[expr.length - 1] += ".";
   return { expr: expr, display: state.display };
 }
 
+/**
+ * Evaluates current expression stack and displays the result.
+ * @param state
+ * @param keyPress
+ * @returns
+ */
+function evaluate(state: CalcState, keyPress: string): CalcState {
+  const expr = state.expr;
+  expr.push(keyPress);
+  const display = evaluateExpression(expr).toString();
+  return { expr: expr, display: display };
+}
+
+///// Data structures for exprToString function
 type ExprItemContext = {
   unaryBefore: boolean;
   binaryBeforeMinus: boolean;
@@ -256,7 +289,7 @@ const unaryDisplaySets = {
     { op: Key.SIN, pre: "sin(", post: ")" },
     { op: Key.COS, pre: "cos(", post: ")" },
     { op: Key.TAN, pre: "tan(", post: ")" },
-    { op: Key.SIGN, pre: "neg(", post: ")" },
+    { op: Key.NEG, pre: "neg(", post: ")" },
   ],
   find: function (op: string) {
     const target = this.sets.find((item) => {

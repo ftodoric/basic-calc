@@ -9,15 +9,7 @@ export function isDisplayFull(display: string): boolean {
 }
 
 // Operation characteristic
-const unaryOP = [
-  Key.SQ,
-  Key.SQRT,
-  Key.INV,
-  Key.SIN,
-  Key.COS,
-  Key.TAN,
-  Key.SIGN,
-];
+const unaryOP = [Key.SQ, Key.SQRT, Key.INV, Key.SIN, Key.COS, Key.TAN, Key.NEG];
 const binaryOP = [Key.ADD, Key.SUB, Key.MUL, Key.DIV];
 
 export function isOP(op: string) {
@@ -45,7 +37,7 @@ function applyUnaryOP(value: number, op: string) {
       return Math.cos(value);
     case Key.TAN:
       return Math.tan(value);
-    case Key.SIGN:
+    case Key.NEG:
       return -value;
     default:
       return NaN;
