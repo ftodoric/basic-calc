@@ -15,6 +15,8 @@ interface Calculator {
   press: (keyPress: string) => void;
 }
 
+let memory: string = "";
+
 interface CalcState {
   expr: string[];
   display: string;
@@ -63,11 +65,11 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
   }
   // Memory store
   else if (keyPress === Key.MS) {
-    return { ...state };
+    return memoryStore(state);
   }
   // Memory retrieve
   else if (keyPress === Key.MR) {
-    return { ...state };
+    return memoryRetrieve(state);
   }
   // Backspace
   else if (keyPress === Key.BCKSP) {
@@ -163,6 +165,18 @@ function clear(state: CalcState): CalcState {
     expr: expr,
     display: initState().display,
   };
+}
+
+function memoryStore(state: CalcState) {
+  memory = state.display;
+  return { ...state };
+}
+
+function memoryRetrieve(state: CalcState) {
+  // If last item is number, replace it
+  if (isNumber(state.expr[state.expr.length - 1]))
+    removeLastUnaries(state.expr);
+  return inputDigit(state, memory);
 }
 
 function applyBackspace(state: CalcState): CalcState {
