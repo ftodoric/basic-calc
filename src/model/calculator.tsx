@@ -112,7 +112,7 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
  *
  * Conditions:
  *
- * 1. No Display Error
+ * 1. No Display Error and Math Error
  * 2. Display must not be full if digit is pressed and last item is number not modified by an unary operator
  * 3. "C" pressed while 0 on display and operator as last item in expression
  * 4. Floating point pressed while last number is modified with an unary operator
@@ -126,7 +126,8 @@ function keyPressDenied(state: CalcState, keyPress: string) {
   const lastItem = state.expr[state.expr.length - 1];
   const penultimItem = state.expr[state.expr.length - 2];
 
-  const cond1 = state.display === "Display Error";
+  const cond1 =
+    state.display === "Display Error" || state.display === "Math Error";
   const cond2 =
     isNumber(keyPress) &&
     isNumber(lastItem) &&

@@ -1,6 +1,6 @@
 import { IconWrapper, IconStyleProps } from "./IconWrapper";
 
-export const BackspaceIcon = (props: IconStyleProps) => {
+export const BackSpaceIcon = (props: IconStyleProps) => {
   return (
     <IconWrapper
       width={props.width}

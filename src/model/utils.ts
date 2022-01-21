@@ -110,6 +110,7 @@ function formatByDisplayConstraints(value: number): string {
   // If the whole part of the number exceeds display limit, display error
   if (value.toString().split(".")[0].replace("-", "").length > 10)
     return "Display Error";
+  else if (isNaN(value) || Math.abs(value) === Infinity) return "Math Error";
 
   // Decimals can be removed
   // Remove rightmost digits from the number (sacrificing precision to fit the display)
