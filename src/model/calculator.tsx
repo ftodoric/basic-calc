@@ -111,7 +111,7 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
  * Conditions:
  *
  * 1. No Display Error
- * 2. Display must not be full if digit is pressed and last item is number
+ * 2. Display must not be full if digit is pressed and last item is number not modified by an unary operator
  * 3. "C" pressed while 0 on display and operator as last item in expression
  *
  * @param state
@@ -123,7 +123,10 @@ function keyPressDenied(state: CalcState, keyPress: string) {
 
   const cond1 = state.display === "Display Error";
   const cond2 =
-    isNumber(keyPress) && isNumber(lastItem) && isDisplayFull(state.display);
+    isNumber(keyPress) &&
+    isNumber(lastItem) &&
+    !isOP(state.expr[state.expr.length - 2]).unary &&
+    isDisplayFull(state.display);
   const cond3 =
     keyPress === Key.C && state.display === "0" && isOP(lastItem).binary;
 
@@ -204,7 +207,6 @@ function addBinaryOperator(state: CalcState, keyPress: string): CalcState {
     if (isOP(expr[expr.length - 1]).binary) expr[expr.length - 1] = keyPress;
     // Else push new operator
     else expr.push(keyPress);
-    console.log(expr);
   }
   // If expression was evaluated previously, push the display value as number, then push this binary operator
   else {
@@ -227,12 +229,19 @@ function inputDigit(state: CalcState, keyPress: string) {
   // If evaluated in previous step, clear expression stack first
   if (expr[expr.length - 1] === Key.EQ) expr = ["0"];
 
-  // If previous input was a digit, concatenate pressed digit to the last number
+  // If previous input was a digit
   let lastItem = expr[expr.length - 1];
   if (isNumber(lastItem)) {
-    lastItem === "0"
-      ? (expr[expr.length - 1] = keyPress)
-      : (expr[expr.length - 1] += keyPress);
+    // If last number not modified by unary concatenate pressed digit to the last number
+    if (!isOP(expr[expr.length - 2]).unary)
+      lastItem === "0"
+        ? (expr[expr.length - 1] = keyPress)
+        : (expr[expr.length - 1] += keyPress);
+    // If last number modified by unary, push new number instead of previous number with it's unaries
+    else {
+      removeLastUnaries(expr);
+      expr.push(keyPress);
+    }
   }
   // Else push new item (new number)
   else {
