@@ -1,6 +1,6 @@
 {
   "short_name": "Calculator",
-  "name": "Calculator with basic operations and functions",
+  "name": "Calculator app for performing basic unary and binary expression evaluations with single memory storage. Simple arithmetics usually suffices.",
   "icons": [],
   "start_url": ".",
   "display": "standalone",
