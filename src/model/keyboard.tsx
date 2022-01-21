@@ -1,5 +1,3 @@
-import { BackSpaceIcon } from "../components/Icons/BackSpaceIcon";
-
 export enum Key {
   // Display and memory functions
   AC = "All Clear",
@@ -57,7 +55,7 @@ export const layout = [
     { key: Key.INV, content: "1/x" },
     {
       key: Key.BCKSP,
-      content: <BackSpaceIcon width="22" height="22" fill="#06354f" />,
+      content: "<",
     },
   ],
   [
