@@ -115,8 +115,13 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
  * 1. No Display Error and Math Error
  * 2. Display must not be full if digit is pressed and last item is number not modified by an unary operator
  * 3. "C" pressed while 0 on display and operator as last item in expression
- * 4. Floating point pressed while last number is modified with an unary operator
+ * 4. Floating point ignored when:
+ *     - last number is modified with an unary operator
+ *     - last item is a binary operator
+ *     - last item is a number and already contains floating point
+ *     - last item is equality operator
  * 5. Backspace pressed while the expression evaluated or last item modified with unary operator or last item binary op
+ * 6. Evaluator pressed while expression previously evaluted
  *
  * @param state
  * @param keyPress
@@ -135,12 +140,18 @@ function keyPressDenied(state: CalcState, keyPress: string) {
     isDisplayFull(state.display);
   const cond3 =
     keyPress === Key.C && state.display === "0" && isOP(lastItem).binary;
-  const cond4 = keyPress === Key.FP && isOP(penultimItem).unary;
+  const cond4 =
+    keyPress === Key.FP &&
+    (isOP(penultimItem).unary ||
+      isOP(lastItem).binary ||
+      lastItem.includes(".") ||
+      lastItem === Key.EQ);
   const cond5 =
     keyPress === Key.BCKSP &&
     (lastItem === Key.EQ || isOP(penultimItem).unary || isOP(lastItem).binary);
+  const cond6 = keyPress === Key.EQ && lastItem === Key.EQ;
 
-  return cond1 || cond2 || cond3 || cond4 || cond5;
+  return cond1 || cond2 || cond3 || cond4 || cond5 || cond6;
 }
 
 /**
