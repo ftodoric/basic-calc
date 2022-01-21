@@ -1,4 +1,4 @@
-import { BackSpaceIcon } from "../components/Icons/BackSpaceIcon";
+import { BackSpaceIcon } from "./../components/Icons/BackSpaceIcon";
 
 export enum Key {
   // Display and memory functions
