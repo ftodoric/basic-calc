@@ -1,7 +1,6 @@
 import { IconWrapper, IconStyleProps } from "./IconWrapper";
 
 export const BackspaceIcon = (props: IconStyleProps) => {
-  console.log(props.height);
   return (
     <IconWrapper
       width={props.width}
