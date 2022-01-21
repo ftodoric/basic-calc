@@ -71,7 +71,7 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
   }
   // Backspace
   else if (keyPress === Key.BCKSP) {
-    return { ...state };
+    return applyBackspace(state);
   }
   // Unary operator
   else if (isOP(keyPress).unary) {
@@ -114,6 +114,7 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
  * 2. Display must not be full if digit is pressed and last item is number not modified by an unary operator
  * 3. "C" pressed while 0 on display and operator as last item in expression
  * 4. Floating point pressed while last number is modified with an unary operator
+ * 5. Backspace pressed while the expression evaluated or last item modified with unary operator or last item binary op
  *
  * @param state
  * @param keyPress
@@ -121,19 +122,22 @@ const getNextState = (state: CalcState, keyPress: string): CalcState => {
  */
 function keyPressDenied(state: CalcState, keyPress: string) {
   const lastItem = state.expr[state.expr.length - 1];
+  const penultimItem = state.expr[state.expr.length - 2];
 
   const cond1 = state.display === "Display Error";
   const cond2 =
     isNumber(keyPress) &&
     isNumber(lastItem) &&
-    !isOP(state.expr[state.expr.length - 2]).unary &&
+    !isOP(penultimItem).unary &&
     isDisplayFull(state.display);
   const cond3 =
     keyPress === Key.C && state.display === "0" && isOP(lastItem).binary;
-  const cond4 =
-    keyPress === Key.FP && isOP(state.expr[state.expr.length - 2]).unary;
+  const cond4 = keyPress === Key.FP && isOP(penultimItem).unary;
+  const cond5 =
+    keyPress === Key.BCKSP &&
+    (lastItem === Key.EQ || isOP(penultimItem).unary || isOP(lastItem).binary);
 
-  return cond1 || cond2 || cond3 || cond4;
+  return cond1 || cond2 || cond3 || cond4 || cond5;
 }
 
 /**
@@ -159,6 +163,28 @@ function clear(state: CalcState): CalcState {
     expr: expr,
     display: initState().display,
   };
+}
+
+function applyBackspace(state: CalcState): CalcState {
+  const expr = state.expr;
+  let display = state.display;
+
+  // Remove last digit from the display if not length of 1
+  if (display.length !== 1) {
+    let displayArray = display.split("");
+    displayArray.pop();
+    display = displayArray.join("");
+  }
+  // Else reset to 0
+  else {
+    display = "0";
+  }
+
+  // Replace the last item in the expression with the display value
+  // Remove floating point with Number().toString() conversion
+  expr[expr.length - 1] = Number(display).toString();
+
+  return { expr: expr, display: display };
 }
 
 /**
