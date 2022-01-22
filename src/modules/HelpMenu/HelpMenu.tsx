@@ -132,7 +132,13 @@ const HelpDescription = ({
         alignItems: "center",
       }}
     >
-      <div style={{ position: "absolute", top: "-70px", marginBottom: "70px" }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "-70px",
+          marginBottom: "70px",
+        }}
+      >
         <span
           onClick={(e) => {
             e.stopPropagation();
@@ -140,7 +146,7 @@ const HelpDescription = ({
           }}
           style={{ marginRight: "10px", color: "lightblue", cursor: "pointer" }}
         >
-          en
+          <S.LangLink>en</S.LangLink>
         </span>
         <span
           onClick={(e) => {
@@ -149,7 +155,7 @@ const HelpDescription = ({
           }}
           style={{ marginRight: "10px", cursor: "pointer" }}
         >
-          hr
+          <S.LangLink>hr</S.LangLink>
         </span>
         <span
           onClick={(e) => {
@@ -158,7 +164,7 @@ const HelpDescription = ({
           }}
           style={{ color: "#b13434", cursor: "pointer" }}
         >
-          de
+          <S.LangLink>de</S.LangLink>
         </span>
       </div>
       <div style={{ marginBottom: "20px", textTransform: "uppercase" }}>

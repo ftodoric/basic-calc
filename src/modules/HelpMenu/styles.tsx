@@ -19,8 +19,16 @@ export const Help = styled.div<{ open: boolean }>`
   font-weight: bold;
   transition: width 0.3s, height 0.3s, min-height 0.3s, border-radius 0.4s,
     top 0.5s, right 0.5s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 
   @media screen and (max-width: 600px) {
     display: none;
+  }
+`;
+
+export const LangLink = styled.span`
+  &:hover {
+    opacity: 0.5;
   }
 `;
