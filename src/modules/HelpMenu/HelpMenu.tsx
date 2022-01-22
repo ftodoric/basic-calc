@@ -125,9 +125,14 @@ const HelpDescription = ({
 }) => {
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
     >
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ position: "absolute", top: "-70px", marginBottom: "70px" }}>
         <span
           onClick={(e) => {
             e.stopPropagation();
