@@ -23,6 +23,16 @@ export function isOP(op: string) {
   };
 }
 
+export function isUnary(op: string): boolean {
+  const result = unaryOP.find((item) => item === op);
+  return result ? true : false;
+}
+
+export function isBinary(op: string): boolean {
+  const result = binaryOP.find((item) => item === op);
+  return result ? true : false;
+}
+
 function applyUnaryOP(value: number, op: string) {
   switch (op) {
     case Key.SQ:
