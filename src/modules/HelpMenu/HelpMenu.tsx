@@ -133,7 +133,7 @@ const HelpDescription = ({
             e.stopPropagation();
             onLocaleChange("en");
           }}
-          style={{ marginRight: "10px", color: "lightblue" }}
+          style={{ marginRight: "10px", color: "lightblue", cursor: "pointer" }}
         >
           en
         </span>
@@ -142,7 +142,7 @@ const HelpDescription = ({
             e.stopPropagation();
             onLocaleChange("hr");
           }}
-          style={{ marginRight: "10px" }}
+          style={{ marginRight: "10px", cursor: "pointer" }}
         >
           hr
         </span>
@@ -151,7 +151,7 @@ const HelpDescription = ({
             e.stopPropagation();
             onLocaleChange("de");
           }}
-          style={{ color: "#b13434" }}
+          style={{ color: "#b13434", cursor: "pointer" }}
         >
           de
         </span>
