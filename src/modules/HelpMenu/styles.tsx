@@ -11,6 +11,7 @@ export const Help = styled.div<{ open: boolean }>`
   opacity: ${(props) => (props.open ? "0.95" : "0.5")};
   border-radius: ${(props) => (props.open ? "0" : "600px")};
   border-top-right-radius: ${(props) => (props.open ? "0" : "20px")};
+  cursor: ${(props) => (props.open ? "default" : "pointer")};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -27,8 +28,39 @@ export const Help = styled.div<{ open: boolean }>`
   }
 `;
 
-export const LangLink = styled.span`
-  &:hover {
-    opacity: 0.5;
+export const HelpText = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const LangPicker = styled.div`
+  position: absolute;
+  top: -70px;
+  margin-bottom: 70px;
+
+  span {
+    cursor: pointer;
+
+    :hover {
+      opacity: 0.5;
+    }
   }
+
+  span + span {
+    margin-left: 10px;
+  }
+`;
+
+export const LeftKeys = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 10px;
+`;
+
+export const RightDescription = styled.div`
+  padding-left: 10px;
+  border-left: solid 1px white;
 `;

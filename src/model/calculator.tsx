@@ -5,7 +5,6 @@ import { Calculator, CalcState } from "./interface";
 import { Key } from "./keyboard";
 import {
   isDisplayFull,
-  isOP,
   isUnary,
   isBinary,
   isNumber,
@@ -145,7 +144,7 @@ function clear(state: CalcState): CalcState {
   // Ignored when:
   // 1. Display value is 0 and last item is a binary operator
   // 2. Last item is not a number
-  const cond1 = state.display === "0" && isOP(expr[expr.length - 1]).binary;
+  const cond1 = state.display === "0" && isBinary(expr[expr.length - 1]);
   const cond2 = !isNumber(expr[expr.length - 1]);
   if (cond1 || cond2) return { ...state };
 
@@ -197,8 +196,8 @@ function applyBackspace(state: CalcState): CalcState {
   // 2. Penultimate item is unary operator
   // 3. Last item is binary operator
   const cond1 = lastItem === Key.EQ;
-  const cond2 = isOP(state.expr[state.expr.length - 2]).unary;
-  const cond3 = isOP(lastItem).binary;
+  const cond2 = isUnary(state.expr[state.expr.length - 2]);
+  const cond3 = isBinary(lastItem);
   if (cond1 || cond2 || cond3) return { ...state };
 
   // Remove last digit from the display if not length of 1
@@ -230,16 +229,16 @@ function applyBackspace(state: CalcState): CalcState {
 function applyUnaryOperator(state: CalcState, keyPress: string): CalcState {
   let expr = state.expr;
   let display = state.display;
-  const lastTerm = expr[expr.length - 1];
+  const lastItem = expr[expr.length - 1];
 
-  // If last item in expression is number apply it on it
-  if (isNumber(lastTerm)) {
-    expr.push(lastTerm);
+  // If the last item in expression is a number apply it on it
+  if (isNumber(lastItem)) {
+    expr.push(lastItem);
     expr[expr.length - 2] = keyPress;
   }
   // If expression was evaluated previously
   else if (expr[expr.length - 1] === Key.EQ) {
-    // Push current unary operator and then the result of the evaluation
+    // Push current unary operator and then the result of the evaluation (Apply it on the result)
     expr = [keyPress, display];
   }
   // Else apply operator on current display value
@@ -264,10 +263,10 @@ function insertBinaryOperator(state: CalcState, keyPress: string): CalcState {
   let expr = state.expr;
   const display = state.display;
 
-  // If expression was not evaluated previously, push new item
+  // If expression was not evaluated previously
   if (expr[expr.length - 1] !== Key.EQ) {
     // If previous item is another binary operator, replace it with this one
-    if (isOP(expr[expr.length - 1]).binary) expr[expr.length - 1] = keyPress;
+    if (isBinary(expr[expr.length - 1])) expr[expr.length - 1] = keyPress;
     // Else push new operator
     else expr.push(keyPress);
   }
@@ -286,28 +285,29 @@ function insertBinaryOperator(state: CalcState, keyPress: string): CalcState {
  * @returns
  */
 function insertDigit(state: CalcState, keyPress: string): CalcState {
-  const isIgnored =
-    isNumber(state.expr[state.expr.length - 1]) &&
-    !isOP(state.expr[state.expr.length - 2]).unary &&
-    isDisplayFull(state.display);
-
-  if (isIgnored) return { ...state };
-
   let expr = state.expr;
   let display = state.display;
 
-  // If evaluated in previous step, clear expression stack first
+  // Ignored when:
+  // 1. The last item is number that's not been modified by an unary operator and the display is full
+  const cond1 =
+    isNumber(expr[expr.length - 1]) &&
+    !isUnary(expr[expr.length - 2]) &&
+    isDisplayFull(display);
+  if (cond1) return { ...state };
+
+  // If evaluated in previous step, clear the expression stack first
   if (expr[expr.length - 1] === Key.EQ) expr = ["0"];
 
   // If previous input was a digit
-  let lastItem = expr[expr.length - 1];
+  const lastItem = expr[expr.length - 1];
   if (isNumber(lastItem)) {
-    // If last number not modified by unary concatenate pressed digit to the last number
-    if (!isOP(expr[expr.length - 2]).unary)
+    // If last number not modified by an unary concatenate pressed digit to the last number
+    if (!isUnary(expr[expr.length - 2]))
       lastItem === "0"
         ? (expr[expr.length - 1] = keyPress)
         : (expr[expr.length - 1] += keyPress);
-    // If last number modified by unary, push new number instead of previous number with it's unaries
+    // If last number modified by an unary, replace previous number along with it's unaries with the new number
     else {
       removeLastUnaries(expr);
       expr.push(keyPress);
@@ -332,13 +332,17 @@ function insertDigit(state: CalcState, keyPress: string): CalcState {
  */
 function insertFloatingPoint(state: CalcState, keyPress: string): CalcState {
   const lastItem = state.expr[state.expr.length - 1];
-  const isIgnored =
-    isOP(state.expr[state.expr.length - 2]).unary ||
-    isOP(lastItem).binary ||
-    lastItem.includes(".") ||
-    lastItem === Key.EQ;
 
-  if (isIgnored) return { ...state };
+  // Ignored when:
+  // 1. Last item modified by an unary operator
+  // 2. Last item is a binary operator
+  // 3. Last item already is decimal number
+  // 4. Expression evaluated in previous step
+  const cond1 = isUnary(state.expr[state.expr.length - 2]);
+  const cond2 = isBinary(lastItem);
+  const cond3 = lastItem.includes(".");
+  const cond4 = lastItem === Key.EQ;
+  if (cond1 || cond2 || cond3 || cond4) return { ...state };
 
   let expr = state.expr;
   expr[expr.length - 1] += ".";
@@ -352,8 +356,10 @@ function insertFloatingPoint(state: CalcState, keyPress: string): CalcState {
  * @returns
  */
 function evaluate(state: CalcState, keyPress: string): CalcState {
-  const isIgnored = state.expr[state.expr.length - 1] === Key.EQ;
-  if (isIgnored) return { ...state };
+  // Ignored when:
+  // 1. Expression evaluated in previous step
+  const cond1 = state.expr[state.expr.length - 1] === Key.EQ;
+  if (cond1) return { ...state };
 
   const expr = state.expr;
   expr.push(keyPress);
@@ -398,7 +404,11 @@ const binaryDisplaySet = [
   { op: Key.DIV, str: "\u00f7" },
 ];
 
-// Parse expression and get displayable string
+/**
+ * Parse expression stack and get a result as a displayable string
+ * @param {string[]} expr
+ * @returns {string}
+ */
 export function exprToString(expr: string[]): string {
   let unaryOP: UnaryDisplaySet | undefined;
   let displayString: string[] = [];
@@ -424,7 +434,7 @@ export function exprToString(expr: string[]): string {
     // 1. Unary was before and binary was before a minus
     // We can ignore binary op, because unary already encloses current value
     if (ctx.unaryBefore) {
-      if (!isOP(item).unary) {
+      if (!isUnary(item)) {
         for (let opObj of unaryOPStack) {
           formattedItem.pre = opObj!.pre + formattedItem.pre;
           formattedItem.post += opObj!.post;
@@ -441,13 +451,13 @@ export function exprToString(expr: string[]): string {
     }
     // 3. No conditions from the last item, proceed normally
     // If current item is an unary operator
-    if (isOP(item).unary) {
+    if (isUnary(item)) {
       unaryOP = unaryDisplaySets.find(item);
       unaryOPStack.push(unaryOP!);
       ctx.unaryBefore = true;
     }
     // If current item is a binary operator
-    else if (isOP(item).binary) {
+    else if (isBinary(item)) {
       displayString.push(
         binaryDisplaySet.find((opObj) => {
           return opObj.op === item;
