@@ -4,11 +4,11 @@
 
 ### Description
 
-App supports following operations:
-- binary fundamentals: addition, subtraction, multiplication, division
+The app supports the following operations:
+- binary: addition, subtraction, multiplication, division
 - unary: square, square root, inverse, sine, cosine, tangent
 
-Single memory storage available, too.
+Single memory storage is available, too.
 
 ## Technologies
 
